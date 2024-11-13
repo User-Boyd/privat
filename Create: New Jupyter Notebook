@@ -1,0 +1,46 @@
+import requests
+import pandas as pd
+
+
+myToken = 'NLOD'
+myUrl = 'https://api.entur.io/geocoder/v1/graphql'
+head = {'Authorization': 'token {}'.format(myToken)}
+response = requests.get(myUrl, headers=head)
+
+
+# API endpoint and headers
+url = "https://api.entur.io/geocoder/v1/graphql"
+headers = {
+    "Content-Type": "application/json",
+    "ET-Client-Name": "your-client-name"  # Replace with your app/client name as required by Entur's API.
+}
+
+# GraphQL query to fetch the quay details
+query = """
+{
+  quay(id: "NSR:Quay:11899") {
+    id
+    name
+    latitude
+    longitude
+    publicCode
+  }
+}
+"""
+
+# Make the API request
+response = requests.post(url, json={"query": query}, headers=headers)
+
+# Check if the request was successful
+if response.status_code == 200:
+    data = response.json()
+    # Extract the quay details
+    quay_data = data.get("data", {}).get("quay", {})
+    if quay_data:
+        # Convert to Pandas DataFrame
+        df = pd.DataFrame([quay_data])
+        print(df)
+    else:
+        print("No data found for the specified quay ID.")
+else:
+    print(f"Error: {response.status_code} - {response.text}")
